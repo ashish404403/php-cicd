@@ -1,0 +1,20 @@
+services:
+  php-cicd:
+    image: ashish403/php-cicd:latest
+    container_name: php-cicd
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - default
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--max-time", "3", "http://localhost/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    driver: bridge

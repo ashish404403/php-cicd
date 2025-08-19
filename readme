@@ -1,0 +1,5 @@
+docker compose down && docker compose up -d
+
+docker build -t ashish403/php-cicd:latest . && docker compose down && docker compose up -d
+
+docker inspect --format='{{json .State.Health}}' php-cicd
