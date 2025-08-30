@@ -1,5 +1,5 @@
 .github
 .gitignore
 docker-compose.yaml
-dockerfile
+Dockerfile
 readme
