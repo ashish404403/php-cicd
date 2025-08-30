@@ -13,6 +13,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image..."
+                    sh "curl -fsSL https://get.docker.com | sh"
                     sh "docker build -t ashish403/php-cicd:latest-jenkinsfile ."
                 }
             }
