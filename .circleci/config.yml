@@ -1,0 +1,49 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.4.0
+
+jobs:
+  build-and-push:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+
+      - run:
+          name: Checkout at release tag
+          command: |
+            git fetch --tags
+            git checkout "${CIRCLE_TAG}"
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Log in to Docker Hub
+          command: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+      - run:
+          name: Build and push multi-arch Docker image
+          command: |
+            docker run --privileged --rm tonistiigi/binfmt --install all
+            docker buildx create --use
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t ashish403/php-cicd:latest-circleci \
+              -t ashish403/php-cicd:${CIRCLE_TAG} \
+              --cache-from type=registry,ref=ashish403/php-cicd:cache \
+              --cache-to type=registry,ref=ashish403/php-cicd:cache,mode=max \
+              --push .
+
+workflows:
+  version: 2
+  release-workflow:
+    jobs:
+      - build-and-push:
+          context: dockerhub
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
